@@ -7,6 +7,11 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from engine import ChessGame, MoveResult
 
+from ai.openai_client import OpenAIClient
+from ai.player import AIPlayer
+from ai.provider import MoveGenerationProvider
+from ai.strategist import Strategist
+
 from .board_view import BoardView
 from .controls import ChessControls
 from telemetry import TelemetryEvent, TelemetryLogger
@@ -31,6 +36,7 @@ class ChessController:
         *,
         game: Optional[ChessGame] = None,
         telemetry: TelemetryLogger | None = None,
+        ai_provider_factory: Callable[[], MoveGenerationProvider] | None = None,
     ) -> None:
         self.controls = controls
         self.board_view = board_view
@@ -38,11 +44,19 @@ class ChessController:
         self._telemetry_logger = telemetry
         self._detach_telemetry: Callable[[], None] | None = None
 
+        self._ai_provider_factory = ai_provider_factory or self._create_default_provider
+        self._player_types: Dict[str, str] = {}
+        self._ai_players: Dict[str, AIPlayer] = {}
+        self._active_ai_colour: Optional[str] = None
+        self._ai_thinking = False
+        self._move_history: List[str] = []
+
         self.selected_square: Optional[Position] = None
         self.valid_moves: List[Position] = []
 
         self.board_view.set_click_handler(self.on_square_clicked)
         self.controls.set_new_game_callback(self.new_game)
+        self.controls.set_player_mode_callback(self._on_player_mode_changed)
 
         if telemetry:
             self._detach_telemetry = telemetry.add_sink(self._on_telemetry_event)
@@ -52,12 +66,20 @@ class ChessController:
     # ------------------------------------------------------------------
     # Grundlegende Steuerung
     def new_game(self) -> None:
+        self._cancel_ai_task()
         self.game.reset()
         self.selected_square = None
         self.valid_moves = []
+        self._move_history = []
+        self._player_types = {
+            "white": self.controls.get_player_type("white"),
+            "black": self.controls.get_player_type("black"),
+        }
+        self._update_board_interaction()
         self.controls.clear_log()
         self.controls.set_commentary("Hier könnte ein Kommentator sprechen…")
         self._refresh_ui()
+        self._maybe_trigger_ai_turn()
 
     def on_square_clicked(self, position: Position) -> None:
         if self.game.game_over:
@@ -97,10 +119,13 @@ class ChessController:
             return
 
         self.controls.append_log_entry(move_notation)
+        self._move_history.append(move_notation)
         self.selected_square = None
         self.valid_moves = []
         self._refresh_ui(result)
         self._handle_game_end(result)
+        if not self.game.game_over:
+            self._maybe_trigger_ai_turn()
 
     def _on_telemetry_event(self, event: TelemetryEvent) -> None:
         duration = (
@@ -136,12 +161,120 @@ class ChessController:
         status_text = self.STATUS_MAP.get(self.game.status, "Bereit")
         self.controls.set_status(status_text)
         self.controls.set_current_player(self.game.current_player)
+        self._update_board_interaction()
 
     def _find_king(self, colour: str) -> Optional[Position]:
         for position, piece in self.game.board.items():
             if piece and piece == (colour, "K"):
                 return position
         return None
+
+    # ------------------------------------------------------------------
+    # Spieler- und KI-Verwaltung
+    def _create_default_provider(self) -> MoveGenerationProvider:
+        return OpenAIClient()
+
+    def _ensure_ai_player(self, colour: str) -> AIPlayer:
+        player = self._ai_players.get(colour)
+        if player is None:
+            provider = self._ai_provider_factory()
+            strategist = Strategist(provider, telemetry=self._telemetry_logger)
+            player = AIPlayer(strategist)
+            self._ai_players[colour] = player
+        return player
+
+    def _on_player_mode_changed(self, colour: str, mode: str) -> None:
+        self._player_types[colour] = mode
+        if mode != "ai" and colour == self._active_ai_colour:
+            self._cancel_ai_task()
+        self._update_board_interaction()
+        self._maybe_trigger_ai_turn()
+
+    def _maybe_trigger_ai_turn(self) -> None:
+        if self.game.game_over:
+            return
+        current_mode = self._player_types.get(self.game.current_player, "human")
+        if current_mode != "ai":
+            self._cancel_ai_task()
+            self._set_ai_thinking(False)
+            self._update_board_interaction()
+            return
+        self._start_ai_turn(self.game.current_player)
+
+    def _start_ai_turn(self, colour: str) -> None:
+        try:
+            player = self._ensure_ai_player(colour)
+        except Exception as exc:
+            messagebox.showerror("KI-Initialisierung fehlgeschlagen", str(exc))
+            self._player_types[colour] = "human"
+            self.controls.set_player_type(colour, "human")
+            self._update_board_interaction()
+            return
+
+        self._active_ai_colour = colour
+        self._set_ai_thinking(True)
+        self.controls.set_status("KI denkt…")
+
+        def on_complete(move: Tuple[Position, Position]) -> None:
+            self._schedule_on_ui(self._on_ai_move_ready, colour, move)
+
+        def on_error(exc: Exception) -> None:
+            self._schedule_on_ui(self._on_ai_error, colour, exc)
+
+        try:
+            player.request_move(
+                self.game,
+                history=tuple(self._move_history),
+                on_complete=on_complete,
+                on_error=on_error,
+            )
+        except RuntimeError as exc:
+            messagebox.showerror("KI beschäftigt", str(exc))
+            self._set_ai_thinking(False)
+            self._active_ai_colour = None
+            self._update_board_interaction()
+
+    def _on_ai_move_ready(
+        self, colour: str, move: Tuple[Position, Position]
+    ) -> None:
+        if colour != self._active_ai_colour:
+            return
+        self._active_ai_colour = None
+        self._set_ai_thinking(False)
+        start, end = move
+        self._execute_move(start, end)
+
+    def _on_ai_error(self, colour: str, exc: Exception) -> None:
+        if colour != self._active_ai_colour:
+            return
+        self._active_ai_colour = None
+        self._set_ai_thinking(False)
+        messagebox.showerror("KI-Fehler", str(exc))
+        self._update_board_interaction()
+
+    def _cancel_ai_task(self) -> None:
+        if self._active_ai_colour:
+            player = self._ai_players.get(self._active_ai_colour)
+            if player:
+                player.cancel()
+        self._active_ai_colour = None
+        self._set_ai_thinking(False)
+
+    def _set_ai_thinking(self, thinking: bool) -> None:
+        self._ai_thinking = thinking
+        self.controls.set_controls_enabled(not thinking)
+        self._update_board_interaction()
+
+    def _update_board_interaction(self) -> None:
+        allow_human = (
+            not self.game.game_over
+            and not self._ai_thinking
+            and self._player_types.get(self.game.current_player, "human") == "human"
+        )
+        self.board_view.set_interaction_enabled(allow_human)
+
+    def _schedule_on_ui(self, callback: Callable[..., None], *args: object) -> None:
+        self.controls.after(0, lambda: callback(*args))
 
     @staticmethod
     def _format_move(piece: Tuple[str, str], start: Position, end: Position) -> str:
