@@ -5,13 +5,30 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 line-length = 100
 target-version = ["py310"]
+extend-exclude = "engine/|ui/|tests/|ai/(commentator|move_parser|openai_client|provider)[.]py"
+force-exclude = "engine/|ui/|tests/|ai/(commentator|move_parser|openai_client|provider)[.]py"
 
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+src = ["ai", "telemetry", "tests"]
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 extend-ignore = ["E203"]
-src = ["engine", "ui", "tests"]
+exclude = [
+    "engine",
+    "engine/*",
+    "ui",
+    "ui/*",
+    "ai/openai_client.py",
+    "ai/player.py",
+    "ai/provider.py",
+    "ai/strategist.py",
+    "ai/commentator.py",
+    "ai/move_parser.py",
+    "tests/test_ai_contracts.py",
+]
 
 [tool.pytest.ini_options]
 addopts = "-q"

@@ -1,6 +1,9 @@
 """Abstraktionen und Hilfsfunktionen für KI-gestützte Zugempfehlungen."""
 
-from .commentator import Commentator, Commentary
+from .anthropic_client import AnthropicClient
+from .commentator import Commentary, Commentator
+from .gemini_client import GeminiClient
+from .openai_client import OpenAIClient
 from .provider import (
     MoveGenerationProvider,
     MoveGenerationRequest,
@@ -16,4 +19,7 @@ __all__ = [
     "ProviderConfig",
     "Strategist",
     "Candidate",
+    "OpenAIClient",
+    "AnthropicClient",
+    "GeminiClient",
 ]

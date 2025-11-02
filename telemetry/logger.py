@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, MutableMapping
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, MutableMapping, Optional
+from typing import Any
 
 
 @dataclass(slots=True)
@@ -15,7 +16,7 @@ class TelemetryEvent:
     message: str
     status: str = "info"
     timestamp: float = field(default_factory=lambda: time.time())
-    duration_ms: Optional[float] = None
+    duration_ms: float | None = None
     metadata: MutableMapping[str, Any] = field(default_factory=dict)
 
 
@@ -26,11 +27,11 @@ class TelemetryLogger:
     """Sammelt Telemetrieereignisse und verteilt sie an optionale Senken."""
 
     def __init__(self) -> None:
-        self._events: List[TelemetryEvent] = []
-        self._sinks: List[Sink] = []
+        self._events: list[TelemetryEvent] = []
+        self._sinks: list[Sink] = []
 
     @property
-    def events(self) -> List[TelemetryEvent]:
+    def events(self) -> list[TelemetryEvent]:
         """Gibt eine Liste der bisher aufgezeichneten Ereignisse zurück."""
 
         return list(self._events)
@@ -41,8 +42,8 @@ class TelemetryLogger:
         phase: str,
         message: str,
         status: str = "info",
-        duration_ms: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        duration_ms: float | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> TelemetryEvent:
         """Speichert ein Ereignis und informiert registrierte Senken."""
 
@@ -72,4 +73,16 @@ class TelemetryLogger:
         return _remove
 
 
-__all__ = ["TelemetryEvent", "TelemetryLogger", "Sink"]
+_GLOBAL_LOGGER: TelemetryLogger | None = None
+
+
+def get_telemetry_logger(*, reset: bool = False) -> TelemetryLogger:
+    """Liefert einen wiederverwendbaren :class:`TelemetryLogger`."""
+
+    global _GLOBAL_LOGGER
+    if reset or _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = TelemetryLogger()
+    return _GLOBAL_LOGGER
+
+
+__all__ = ["TelemetryEvent", "TelemetryLogger", "Sink", "get_telemetry_logger"]
