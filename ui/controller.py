@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from tkinter import messagebox
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from engine import ChessGame, MoveResult
 
 from .board_view import BoardView
 from .controls import ChessControls
+from telemetry import TelemetryEvent, TelemetryLogger
 
 Position = Tuple[int, int]
 
@@ -29,16 +30,22 @@ class ChessController:
         board_view: BoardView,
         *,
         game: Optional[ChessGame] = None,
+        telemetry: TelemetryLogger | None = None,
     ) -> None:
         self.controls = controls
         self.board_view = board_view
         self.game = game or ChessGame()
+        self._telemetry_logger = telemetry
+        self._detach_telemetry: Callable[[], None] | None = None
 
         self.selected_square: Optional[Position] = None
         self.valid_moves: List[Position] = []
 
         self.board_view.set_click_handler(self.on_square_clicked)
         self.controls.set_new_game_callback(self.new_game)
+
+        if telemetry:
+            self._detach_telemetry = telemetry.add_sink(self._on_telemetry_event)
 
         self.new_game()
 
@@ -94,6 +101,14 @@ class ChessController:
         self.valid_moves = []
         self._refresh_ui(result)
         self._handle_game_end(result)
+
+    def _on_telemetry_event(self, event: TelemetryEvent) -> None:
+        duration = (
+            f" ({event.duration_ms:.0f} ms)" if event.duration_ms is not None else ""
+        )
+        status = "" if event.status == "info" else f"[{event.status}] "
+        entry = f"[{event.phase}] {status}{event.message}{duration}"
+        self.controls.append_log_entry(entry)
 
     def _handle_game_end(self, result: MoveResult) -> None:
         if not result.game_over or not result.just_finished:

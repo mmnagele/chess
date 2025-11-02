@@ -5,9 +5,12 @@ from .provider import (
     MoveGenerationRequest,
     ProviderConfig,
 )
+from .strategist import Candidate, Strategist
 
 __all__ = [
     "MoveGenerationProvider",
     "MoveGenerationRequest",
     "ProviderConfig",
+    "Strategist",
+    "Candidate",
 ]
