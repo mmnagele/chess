@@ -28,6 +28,7 @@ class BoardView(tk.Frame):
         super().__init__(master, borderwidth=2, relief="groove")
         self._on_square_click = on_square_click
         self._square_size = square_size
+        self._interaction_enabled = True
 
         self._squares: Dict[Position, tk.Label] = {}
         self._base_colors: Dict[Position, str] = {}
@@ -70,7 +71,7 @@ class BoardView(tk.Frame):
         self._on_square_click = callback
 
     def _handle_click(self, position: Position) -> None:
-        if self._on_square_click:
+        if self._interaction_enabled and self._on_square_click:
             self._on_square_click(position)
 
     # ------------------------------------------------------------------
@@ -113,6 +114,11 @@ class BoardView(tk.Frame):
     def highlight_selection(self, position: Optional[Position]) -> None:
         if position is not None:
             self.highlight_square(position, self.SELECTION_COLOR)
+
+    # ------------------------------------------------------------------
+    # Interaktionssteuerung
+    def set_interaction_enabled(self, enabled: bool) -> None:
+        self._interaction_enabled = enabled
 
 
 __all__ = ["BoardView"]
