@@ -89,7 +89,7 @@ class BoardView(tk.Frame):
                 color, p_type = piece
                 square.config(
                     text=symbol_provider(p_type, color),
-                    fg="black" if color == "white" else "white",
+                    fg="white" if color == "white" else "black",
                 )
             else:
                 square.config(text="")
