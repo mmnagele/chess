@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import json
+from datetime import datetime, timezone
+from pathlib import Path
 from tkinter import messagebox
 from typing import Callable, Dict, List, Optional, Tuple
 
 from engine import ChessGame, MoveResult
+from engine.fen import export_fen
 
+from ai.commentator import Commentator, Commentary
 from ai.openai_client import OpenAIClient
 from ai.player import AIPlayer
 from ai.provider import MoveGenerationProvider
@@ -37,6 +42,7 @@ class ChessController:
         game: Optional[ChessGame] = None,
         telemetry: TelemetryLogger | None = None,
         ai_provider_factory: Callable[[], MoveGenerationProvider] | None = None,
+        commentator_factory: Callable[[], Commentator] | None = None,
     ) -> None:
         self.controls = controls
         self.board_view = board_view
@@ -49,6 +55,11 @@ class ChessController:
         self._ai_players: Dict[str, AIPlayer] = {}
         self._active_ai_colour: Optional[str] = None
         self._ai_thinking = False
+        self._commentator = (
+            commentator_factory() if commentator_factory else Commentator(telemetry=telemetry)
+        )
+        self._commentary_log: List[Dict[str, object]] = []
+        self._commentary_log_path = Path("telemetry/commentary_log.jsonl")
         self._move_history: List[str] = []
 
         self.selected_square: Optional[Position] = None
@@ -75,6 +86,8 @@ class ChessController:
             "white": self.controls.get_player_type("white"),
             "black": self.controls.get_player_type("black"),
         }
+        self._commentary_log = []
+        self._flush_commentary_log()
         self._update_board_interaction()
         self.controls.clear_log()
         self.controls.set_commentary("Hier könnte ein Kommentator sprechen…")
@@ -122,6 +135,7 @@ class ChessController:
         self._move_history.append(move_notation)
         self.selected_square = None
         self.valid_moves = []
+        self._update_commentary()
         self._refresh_ui(result)
         self._handle_game_end(result)
         if not self.game.game_over:
@@ -298,6 +312,51 @@ class ChessController:
         file = chr(ord("a") + position[1])
         rank = str(8 - position[0])
         return f"{file}{rank}"
+
+    # ------------------------------------------------------------------
+    # Kommentator
+    def _update_commentary(self) -> None:
+        if not self._commentator:
+            return
+        try:
+            commentary = self._commentator.provide_commentary(
+                self.game, history=tuple(self._move_history)
+            )
+        except Exception as exc:
+            self.controls.set_commentary(f"Kommentatorfehler: {exc}")
+            self._record_commentary_error(str(exc))
+            return
+
+        rendered = self._commentator.render(commentary)
+        self.controls.set_commentary(rendered)
+        self._record_commentary_entry(commentary)
+
+    def _record_commentary_entry(self, commentary: Commentary) -> None:
+        entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "fen": export_fen(self.game),
+            "history": list(self._move_history),
+            "commentary": commentary.as_dict(),
+        }
+        self._commentary_log.append(entry)
+        self._flush_commentary_log()
+
+    def _record_commentary_error(self, message: str) -> None:
+        entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "fen": export_fen(self.game),
+            "history": list(self._move_history),
+            "error": message,
+        }
+        self._commentary_log.append(entry)
+        self._flush_commentary_log()
+
+    def _flush_commentary_log(self) -> None:
+        path = self._commentary_log_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", encoding="utf-8") as handle:
+            for entry in self._commentary_log:
+                handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 __all__ = ["ChessController"]
