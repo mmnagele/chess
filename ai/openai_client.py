@@ -63,6 +63,7 @@ class OpenAIClient(MoveGenerationProvider):
 
         schema = {
             "name": "move_response",
+            "strict": True,
             "schema": {
                 "type": "object",
                 "properties": {
@@ -100,7 +101,12 @@ class OpenAIClient(MoveGenerationProvider):
             ],
             "temperature": self.config.temperature,
             "max_output_tokens": self.config.max_output_tokens,
-            "response_format": {"type": "json_schema", "json_schema": schema},
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "json_schema": schema,
+                }
+            },
         }
 
     def _post(self, path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
