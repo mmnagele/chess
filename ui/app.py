@@ -6,6 +6,7 @@ import tkinter as tk
 
 from .controller import ChessController
 from .controls import ChessControls
+from telemetry import TelemetryLogger
 
 
 class ChessApp:
@@ -20,7 +21,15 @@ class ChessApp:
 
         board_view = self.controls.create_board_view()
 
-        self.controller = ChessController(self.controls, board_view)
+        telemetry = TelemetryLogger()
+
+        self.controller = ChessController(
+            self.controls,
+            board_view,
+            telemetry=telemetry,
+        )
+
+        self.telemetry = telemetry
 
 
 __all__ = ["ChessApp"]
