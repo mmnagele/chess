@@ -81,11 +81,21 @@ class OpenAIClient(MoveGenerationProvider):
             "input": [
                 {
                     "role": "system",
-                    "content": instructions,
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": instructions,
+                        }
+                    ],
                 },
                 {
                     "role": "user",
-                    "content": user_prompt,
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": user_prompt,
+                        }
+                    ],
                 },
             ],
             "temperature": self.config.temperature,
