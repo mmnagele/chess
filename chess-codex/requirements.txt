@@ -1,0 +1,4 @@
+PySide6
+openai
+anthropic
+google-genai

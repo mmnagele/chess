@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45">
+  <g fill="#E6EDF3" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Crown points with circles -->
+    <circle cx="6" cy="12" r="2"/>
+    <circle cx="14" cy="7" r="2"/>
+    <circle cx="22.5" cy="5" r="2"/>
+    <circle cx="31" cy="7" r="2"/>
+    <circle cx="39" cy="12" r="2"/>
+    <!-- Body -->
+    <path d="M 9,36 C 12.4,35.5 18,33.5 22.5,31.5 C 27,33.5 32.6,35.5 36,36 L 36,36 C 34,30 30,25 30,20 L 39,12 L 31,7 L 22.5,5 L 14,7 L 6,12 L 15,20 C 15,25 11,30 9,36 Z"/>
+    <!-- Crown band -->
+    <path d="M 14,29 C 18,27 27,27 31,29" fill="none"/>
+    <!-- Base platform -->
+    <path d="M 7,38 L 38,38 C 38,38 38,36 36,36 L 9,36 C 7,36 7,38 7,38 Z"/>
+    <path d="M 6,41 L 39,41 C 39,41 39,39 38,38 L 7,38 C 6,39 6,41 6,41 Z"/>
+  </g>
+</svg>

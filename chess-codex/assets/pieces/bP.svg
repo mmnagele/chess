@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.1" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g fill="#0f172a" stroke="#dbeafe" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <ellipse cx="50" cy="83" rx="22" ry="7"/>
+    <ellipse cx="50" cy="60" rx="8.5" ry="16"/>
+    <circle cx="50" cy="38" r="7.5"/>
+  </g>
+</svg>

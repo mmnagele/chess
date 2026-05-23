@@ -1,0 +1,47 @@
+"""Color constants for the dark neon theme."""
+
+# Background tones
+BG_DARKEST = "#0B0F14"
+BG_SURFACE = "#101826"
+BG_PANEL = "#0F172A"
+BG_CARD = "#141E30"
+
+# Borders
+BORDER_DEFAULT = "#1F2A3A"
+BORDER_FOCUS = "#22D3EE"
+
+# Text
+TEXT_PRIMARY = "#E6EDF3"
+TEXT_MUTED = "#9FB0C0"
+TEXT_DIM = "#5A6A7A"
+
+# Neon accents
+NEON_CYAN = "#22D3EE"
+NEON_MAGENTA = "#A855F7"
+NEON_LIME = "#A3E635"
+NEON_PINK = "#FB7185"
+
+# Board colors (marble-inspired)
+BOARD_LIGHT = "#D4C5A9"
+BOARD_DARK = "#7A6B52"
+BOARD_BORDER = "#2A1F14"
+
+# Highlight colors
+HIGHLIGHT_SELECTED = "#22D3EE"
+HIGHLIGHT_LEGAL_MOVE = "#A3E635"  # neon yellow-green
+HIGHLIGHT_CAPTURE = "#3B82F6"  # blue ring for captures
+HIGHLIGHT_LAST_MOVE = "#E53E3E"  # strong red for last-move from/to
+HIGHLIGHT_CHECK = "#FB7185"
+HIGHLIGHT_SUGGESTED_FROM = "#22D3EE"
+HIGHLIGHT_SUGGESTED_TO = "#A3E635"
+
+# Button states
+BTN_DEFAULT = "#1F2A3A"
+BTN_HOVER = "#2A3A4F"
+BTN_PRESSED = "#0F172A"
+BTN_TEXT = "#E6EDF3"
+
+# Scrollbar
+SCROLLBAR_BG = "#0F172A"
+SCROLLBAR_HANDLE = "#2A3A4F"
+SCROLLBAR_HANDLE_HOVER = "#22D3EE"

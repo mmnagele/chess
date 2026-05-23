@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.1" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g fill="#0f172a" stroke="#dbeafe" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <ellipse cx="50" cy="83" rx="24" ry="7"/>
+    <path d="M35 80h30l-3-38H38z"/>
+    <rect x="35" y="25" width="30" height="15" rx="3"/>
+    <line x1="50" y1="12" x2="50" y2="33"/>
+    <line x1="42" y1="20" x2="58" y2="20"/>
+  </g>
+</svg>

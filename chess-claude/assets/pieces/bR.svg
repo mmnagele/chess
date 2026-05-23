@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45">
+  <g fill="#2a2a2a" stroke="#E6EDF3" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Battlements -->
+    <path d="M 9,6 L 9,11 L 13,11 L 13,6 L 17,6 L 17,11 L 20,11 L 20,6 L 25,6 L 25,11 L 28,11 L 28,6 L 32,6 L 32,11 L 36,11 L 36,6 L 36,11 Z"/>
+    <!-- Body -->
+    <path d="M 11,11 L 11,14 L 13,16 L 13,30 L 11,32 L 11,36 L 34,36 L 34,32 L 32,30 L 32,16 L 34,14 L 34,11 Z"/>
+    <!-- Top ledge -->
+    <path d="M 9,11 L 36,11 L 36,14 L 34,14 L 11,14 L 9,14 Z"/>
+    <!-- Collar line -->
+    <path d="M 13,16 L 32,16" fill="none"/>
+    <!-- Waist line -->
+    <path d="M 13,30 L 32,30" fill="none"/>
+    <!-- Base platform -->
+    <path d="M 7,38 L 38,38 C 38,38 38,36 36,36 L 9,36 C 7,36 7,38 7,38 Z"/>
+    <path d="M 6,41 L 39,41 C 39,41 39,39 38,38 L 7,38 C 6,39 6,41 6,41 Z"/>
+  </g>
+</svg>

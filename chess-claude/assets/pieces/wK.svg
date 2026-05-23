@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45">
+  <g fill="#E6EDF3" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Crown body (slightly wider) -->
+    <path d="M 9,36 L 36,36 C 36,36 34,30 31,28 L 31,26 C 34.5,24 38,19 38,14.5 C 38,9.5 33.5,5 28.5,5 L 28.5,1 L 26.5,1 L 26.5,5 L 18.5,5 L 18.5,1 L 16.5,1 L 16.5,5 C 11.5,5 7,9.5 7,14.5 C 7,19 10.5,24 14,26 L 14,28 C 11,30 9,36 9,36 Z"/>
+    <!-- Cross on top (larger: 4 units wide vertical, 9 units wide horizontal) -->
+    <path d="M 20.5,0.5 L 24.5,0.5 L 24.5,4.5 L 20.5,4.5 Z" fill="#E6EDF3"/>
+    <path d="M 18,1.5 L 27,1.5 L 27,3.5 L 18,3.5 Z" fill="#E6EDF3"/>
+    <!-- Crown band -->
+    <path d="M 14,28 L 31,28" fill="none"/>
+    <!-- Base platform -->
+    <path d="M 7,38 L 38,38 C 38,38 38,36 36,36 L 9,36 C 7,36 7,38 7,38 Z"/>
+    <path d="M 6,41 L 39,41 C 39,41 39,39 38,38 L 7,38 C 6,39 6,41 6,41 Z"/>
+  </g>
+</svg>

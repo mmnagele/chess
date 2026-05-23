@@ -1,0 +1,37 @@
+# Local/editor noise
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Python runtime and caches
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+!**/.env.example.*
+*.pem
+*.key
+**/credentials.json
+**/*.keys.json
+
+# Build and generated outputs
+dist/
+build/
+coverage/
+htmlcov/
+playwright-report/
+test-results/
+logs/
